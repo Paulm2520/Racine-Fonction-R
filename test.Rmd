@@ -1,0 +1,115 @@
+---
+title: "Trouver la racine d'une fonction"
+author: "Paul Moulaire"
+date: "30/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+### 1. Trouver la racine d'une fonction affine
+
+
+####  1.1 Générer une fonction affine aléatoire
+
+```{r collapse=TRUE}
+a<-sample(c(-10:10),1)
+b<-sample(c(1:10),1)
+
+a
+b
+
+f<-function(x) (a+b*(x))
+
+```
+```{r echo=FALSE}
+library(lattice)
+x1<-seq(-15,15,1)
+y1<-(a+b*x1)
+xyplot(y1~x1,type=c("g","l"),xlab="x",ylab="y")
+```
+
+
+
+
+####  1.2 Définir un point de départ et un delta souhaité pour calculer le coéfficient directeur de la droite:
+  
+```{r}
+c<-1
+delta<-1 
+
+```
+ 
+ 
+  
+####  1.3 Calcul du coéficient directeur de la droite pour une unité de x et calcul de l'ordonnée à l'origine
+
+```{r collapse=TRUE}
+coef_d<-(f(c+delta)-f(c))*1/delta
+coef_d
+B0<-f(c)-c*coef_d
+B0
+```
+
+
+
+####  1.4 Calcul de la racine de la fonction avec le coéfficient directeur et l'ordonnée à l'origine
+
+```{r collapse=TRUE}
+x0<- -B0/coef_d
+x0
+f(x0)
+```
+### 2. Trouver la racine d'une fonction non affine
+
+```{r echo=FALSE}
+
+x2<-seq(0,15,1)
+y<- -log(x2)+2
+xyplot(y~x2,type=c("l","g"),xlab="x")
+
+```
+```{r}
+f<-function(x) (-log(x)+2)
+```
+
+
+####  2.1 Définir un point de départ(x0),une précision souhaitée (p) et un nombre maximal (n) d'ittérations de la boucle.
+
+```{r}
+x0<-0.5
+p<-0
+n<-100
+```
+
+
+####  2.1 Création d'une boucle, qui va chercher la racine de la fonction.
+
+sur le même principe que pour une fonction affine, la boucle va chercher une valeur x0 telle que f(x0)=0, puis va comparer ce résultat à 0 +/- la précision souhaitée. Si la condition n'est pas validée, on recommence, un maximum de n fois, en prenant le dernier x0 trouvé comme nouvelle valeur de départ.
+
+nb: Si on veut un résultat "exact" on fixe p à 0.
+
+```{r collapse=TRUE}
+for(i in 1:n){
+  c[i]<-x0
+  x0<- -(f(c[i])-c[i]*((f(c[i]+0.01)-f(c[i]))*1/0.01))/((f(c[i]+0.01)-f(c[i]))*1/0.01)
+  if(f(x0)>=-p & f(x0)<=p) break
+}
+x0
+f(x0)
+```
+### Remarques:
+
+Ce code trouve uniquement UNE solution x0 telle que f(x0)=0 +/- p.
+
+Si l'on suspecte l'existance de plusieurs valeurs de x, telles que f(x)=0, on peut faire varier le point de départ (x0) de la boucle à la recherche d'autres solutions.
+
+
+Il existe à priori un fonction intégrée dans R (?uniroot) ainsi qu'un package dédié à la recherche de racines de fonctions "rootSolve" qui s'applique dans de plus larges cas:
+
+https://cran.r-project.org/web/packages/rootSolve/vignettes/rootSolve.pdf
+
